@@ -1,0 +1,24 @@
+{
+  "name": "telegram-bot",
+  "description": "Telegram bot deployed on Heroku",
+  "keywords": ["telegram", "bot", "python"],
+  "env": {
+    "TELEGRAM_API_ID": {
+      "description": "Your Telegram API ID",
+      "required": true
+    },
+    "TELEGRAM_API_HASH": {
+      "description": "Your Telegram API hash",
+      "required": true
+    },
+    "TELEGRAM_BOT_TOKEN": {
+      "description": "Your Telegram bot token",
+      "required": true
+    }
+  },
+  "buildpacks": [
+    {
+      "url": "heroku/python"
+    }
+  ]
+}
