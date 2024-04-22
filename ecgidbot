@@ -1,0 +1,42 @@
+import os
+from telethon import TelegramClient, events, sync
+from telethon.tl.types import User
+
+# Replace these placeholders with your actual values
+api_id = os.getenv('TELEGRAM_API_ID')
+api_hash = os.getenv('TELEGRAM_API_HASH')
+bot_token = os.getenv('TELEGRAM_BOT_TOKEN')
+
+# Create the client and connect
+bot = TelegramClient('bot', api_id, api_hash).start(bot_token=bot_token)
+
+@bot.on(events.NewMessage(pattern='/id'))
+async def handler(event):
+    # Check if the command is followed by a username
+    if event.message.message.split():
+        parts = event.message.message.split()
+        if len(parts) > 1 and parts[1].startswith('@'):
+            try:
+                user = await bot.get_entity(parts[1])
+                full_name = f"{user.first_name} {user.last_name}" if user.last_name else user.first_name
+                response = f"The user ID of {full_name} is `{user.id}`.\n\nCommands:\n`/add {user.id}`\n`/remove {user.id}`"
+                await event.reply(response, parse_mode='markdown')
+                return
+            except Exception as e:
+                await event.reply(str(e))
+                return
+
+    # If the command is a reply to another message
+    if event.is_reply:
+        original_msg = await event.get_reply_message()
+        user_id = original_msg.from_id.user_id
+        full_name = f"{original_msg.sender.first_name} {original_msg.sender.last_name}" if isinstance(original_msg.sender, User) and original_msg.sender.last_name else original_msg.sender.first_name
+        response = f"The user ID of {full_name} is `{user_id}`.\n\nCommands:\n`/add {user_id}`\n`/remove {user_id}`"
+        await event.reply(response, parse_mode='markdown', link_preview=False)
+    else:
+        # When there's no username mentioned and it's not a reply
+        await event.reply("Please use the command with a username or as a reply to someone's message.")
+
+# Run the bot until you stop it
+print("Bot is running...")
+bot.run_until_disconnected()
